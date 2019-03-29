@@ -5,10 +5,57 @@ import {
   Card, Icon, Input, Button,
 } from 'react-native-elements';
 
+import AsyncStorage from '@react-native-community/async-storage';
+
 class LoginContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = { };
+    this.state = { 
+      name: '',
+      subtitle: '',
+      group: '',
+    };
+  }
+
+  _storeUserData = async (val) => {
+    try {
+      await AsyncStorage.setItem('users', JSON.stringify(val));
+    } catch (error) {
+      // Error saving data
+    }
+  };
+
+  _handleAddUser = async () => {
+    const {name, subtitle, group} = this.state;
+    const { handleEvent } = this.props;
+    await AsyncStorage.getItem('users',(error, result)=>{
+      if(result){
+        let user = {
+          'name': name,
+          'subtitle': subtitle,
+          'group': group
+        }
+        let allUsers = JSON.parse(result);
+        allUsers.push(user);
+        console.log('JSON.parse(result)===',allUsers);
+        this._storeUserData(allUsers);
+      }else{
+        let user = {
+          'name': name,
+          'subtitle': subtitle,
+          'group': group
+        }
+        console.log('useruseruseruser=',user);
+        let users = [];
+        users.push(user);
+        this._storeUserData(users);
+      }
+      handleEvent();
+    });
+  }
+
+  componentDidMount() {
+    
   }
 
   render() {
@@ -21,20 +68,29 @@ class LoginContainer extends Component {
               title="ADD PERSON"
             >
               <Input
-                placeholder="USER NAME"
+                placeholder="姓名"
                 leftIcon={{ name: 'person' }}
+                onChangeText={(text) => this.setState({'name':text})}
               />
               <Input
-                placeholder="EMAIL"
+                placeholder="單位"
                 leftIcon={{ name: 'email' }}
+                onChangeText={(text) => this.setState({'group':text})}
               />
               <Input
-                placeholder="ADDRESS"
-                leftIcon={{ name: 'home' }}
-              />
-              <Input
-                placeholder="PHONE"
+                placeholder="電話"
                 leftIcon={{ name: 'phone' }}
+                onChangeText={(text) => this.setState({'subtitle':text})}
+              />
+
+              <Button
+                onPress={()=>this._handleAddUser()}
+                icon={<Icon name="add" color="#ffffff" />}
+                backgroundColor="#03A9F4"
+                buttonStyle={{
+                  borderRadius: 3, marginTop: 20,
+                }}
+                title="新增"
               />
 
               <Button
@@ -44,7 +100,7 @@ class LoginContainer extends Component {
                 buttonStyle={{
                   borderRadius: 3, marginTop: 20,
                 }}
-                title="CLOSE"
+                title="關閉"
               />
 
             </Card>

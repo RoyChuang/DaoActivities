@@ -1,10 +1,12 @@
 /* eslint-disable react/jsx-no-bind */
 import React, { Component } from 'react';
 import {
-  ScrollView, View, BackHandler, Alert,
+  ScrollView, View, BackHandler, Alert
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { Header, ListItem, Icon } from 'react-native-elements';
 import TouchableScale from 'react-native-touchable-scale';
+import _ from 'lodash';
 
 import LoginContainer from './LoginContainer';
 import QrcodeContainer from './QrcodeContainer';
@@ -16,10 +18,18 @@ class MainContainer extends Component {
       isLoginFrameShow: false,
       isQrCodeFrameShow: false,
       currentQrCodeData: {},
+      allUsers: []
     };
   }
 
+  _retrieveUserData = async () => {
+    await AsyncStorage.getItem('users',(error, result)=>{
+      this.setState({ allUsers: JSON.parse(result) });
+    });
+  };
+
   componentDidMount() {
+    this._retrieveUserData();
     BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
   }
 
@@ -42,7 +52,6 @@ class MainContainer extends Component {
 
   showQrCode(val) {
     const { isQrCodeFrameShow } = this.state;
-    console.log('val=====', val);
     this.setState({ currentQrCodeData: val }, () => {
       this.setState({ isQrCodeFrameShow: !isQrCodeFrameShow });
     });
@@ -55,6 +64,27 @@ class MainContainer extends Component {
   showLogin() {
     const { isLoginFrameShow } = this.state;
     this.setState({ isLoginFrameShow: !isLoginFrameShow });
+  }
+
+  _renderAllUsers(){
+    const { allUsers } = this.state;
+    console.log('data====',allUsers);
+    return _.map(allUsers, (l,index) => (
+      <ListItem
+        key={index}
+        onPress={() => this.showQrCode(l)}
+        Component={TouchableScale}
+        leftIcon={{ name: 'qrcode', size: 40, type: 'font-awesome' }}
+        title={l.name}
+        rightTitle={l.group}
+        subtitle={l.subtitle}
+        activeScale={0.95}
+        bottomDivider
+        titleStyle={{ fontSize: 24 }}
+        rightTitleStyle={{ fontSize: 24 }}
+        subtitleStyle={{ fontSize: 20 }}
+      />
+    ))
   }
 
   render() {
@@ -89,22 +119,7 @@ class MainContainer extends Component {
         />
         <ScrollView>
           {
-            list.map((l, i) => (
-              <ListItem
-                key={i}
-                onPress={() => this.showQrCode(l)}
-                Component={TouchableScale}
-                leftIcon={{ name: 'qrcode', size: 40, type: 'font-awesome' }}
-                title={l.name}
-                rightTitle={l.group}
-                subtitle={l.subtitle}
-                activeScale={0.95}
-                bottomDivider
-                titleStyle={{ fontSize: 24 }}
-                rightTitleStyle={{ fontSize: 24 }}
-                subtitleStyle={{ fontSize: 20 }}
-              />
-            ))
+            this._renderAllUsers()
           }
         </ScrollView>
         <QrcodeContainer isVisible={isQrCodeFrameShow} qrCodeData={currentQrCodeData} handleEvent={this.closeQrCode.bind(this)} />

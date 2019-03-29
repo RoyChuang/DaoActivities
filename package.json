@@ -9,6 +9,7 @@
     "android": "react-native run-android"
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.2.2",
     "babel-eslint": "^10.0.1",
     "lodash": "^4.17.11",
     "lottie-react-native": "^2.6.0",
