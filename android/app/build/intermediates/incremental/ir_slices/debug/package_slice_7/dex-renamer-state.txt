@@ -1,0 +1,4 @@
+#Tue Mar 26 17:28:17 CST 2019
+base.0=/Users/Roy/Documents/dao/DaoActivities/android/app/build/intermediates/transforms/dexMerger/debug/7
+path.0=classes.dex
+renamed.0=classes.dex
