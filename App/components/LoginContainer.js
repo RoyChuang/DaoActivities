@@ -27,7 +27,7 @@ class LoginContainer extends Component {
 
   _handleAddUser = async () => {
     const {name, subtitle, group} = this.state;
-    const { handleEvent } = this.props;
+    const { handleEvent, handletRetrieveUserData } = this.props;
     await AsyncStorage.getItem('users',(error, result)=>{
       if(result){
         let user = {
@@ -50,6 +50,7 @@ class LoginContainer extends Component {
         users.push(user);
         this._storeUserData(users);
       }
+      handletRetrieveUserData();
       handleEvent();
     });
   }

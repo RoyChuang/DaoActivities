@@ -1,12 +1,13 @@
 /* eslint-disable react/jsx-no-bind */
 import React, { Component } from 'react';
 import {
-  ScrollView, View, BackHandler, Alert
+  ScrollView, BackHandler, Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import { Header, ListItem, Icon } from 'react-native-elements';
+import { Header, ListItem, Icon, ThemeProvider } from 'react-native-elements';
 import TouchableScale from 'react-native-touchable-scale';
 import _ from 'lodash';
+import Swipeout from 'react-native-swipeout';
 
 import LoginContainer from './LoginContainer';
 import QrcodeContainer from './QrcodeContainer';
@@ -22,14 +23,14 @@ class MainContainer extends Component {
     };
   }
 
-  _retrieveUserData = async () => {
+  retrieveUserData = async () => {
     await AsyncStorage.getItem('users',(error, result)=>{
       this.setState({ allUsers: JSON.parse(result) });
     });
   };
 
   componentDidMount() {
-    this._retrieveUserData();
+    this.retrieveUserData();
     BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
   }
 
@@ -57,6 +58,19 @@ class MainContainer extends Component {
     });
   }
 
+  _deleteUser = async (user) => {
+    await AsyncStorage.getItem('users',(error, result)=>{
+      const users = JSON.parse(result);
+      _.map(users, (u)=>{
+          if(_.isEqual(user, u)){
+            _.remove(users, user);
+          }
+      });
+      AsyncStorage.setItem('users', JSON.stringify(users))
+      .then(() => this.setState({allUsers: users}))
+    });
+  }
+
   closeQrCode() {
     this.setState({ isQrCodeFrameShow: false });
   }
@@ -68,42 +82,34 @@ class MainContainer extends Component {
 
   _renderAllUsers(){
     const { allUsers } = this.state;
-    console.log('data====',allUsers);
     return _.map(allUsers, (l,index) => (
-      <ListItem
-        key={index}
-        onPress={() => this.showQrCode(l)}
-        Component={TouchableScale}
-        leftIcon={{ name: 'qrcode', size: 40, type: 'font-awesome' }}
-        title={l.name}
-        rightTitle={l.group}
-        subtitle={l.subtitle}
-        activeScale={0.95}
-        bottomDivider
-        titleStyle={{ fontSize: 24 }}
-        rightTitleStyle={{ fontSize: 24 }}
-        subtitleStyle={{ fontSize: 20 }}
-      />
+      <Swipeout right={[
+        {
+          backgroundColor: 'red',
+          underlayColor: 'rgba(0, 0, 0, 1, 0.6)',
+          text: '刪除',
+          onPress: () => { this._deleteUser(l) }
+        }
+      ]} key={index}>
+        <ListItem
+          onPress={() => this.showQrCode(l)}
+          leftIcon={{ name: 'qrcode', size: 40, type: 'font-awesome' }}
+          title={l.name}
+          rightTitle={l.group}
+          subtitle={l.subtitle}
+          bottomDivider
+          titleStyle={{ fontSize: 24 }}
+          rightTitleStyle={{ fontSize: 24 }}
+          subtitleStyle={{ fontSize: 20 }}
+        />
+      </Swipeout>
     ))
   }
 
   render() {
     const { isLoginFrameShow, isQrCodeFrameShow, currentQrCodeData } = this.state;
-    const list = [
-      {
-        name: 'Test name1',
-        subtitle: '0911722845',
-        group: 'group 1',
-      },
-      {
-        name: 'Test name2',
-        subtitle: '0933223876',
-        group: 'group 2',
-      },
-
-    ];
     return (
-      <View>
+      <ThemeProvider>
         <Header
           leftComponent={(
             // eslint-disable-next-line no-underscore-dangle
@@ -122,9 +128,15 @@ class MainContainer extends Component {
             this._renderAllUsers()
           }
         </ScrollView>
-        <QrcodeContainer isVisible={isQrCodeFrameShow} qrCodeData={currentQrCodeData} handleEvent={this.closeQrCode.bind(this)} />
-        <LoginContainer isVisible={isLoginFrameShow} handleEvent={this.showLogin.bind(this)} />
-      </View>
+        <QrcodeContainer 
+          isVisible={isQrCodeFrameShow} 
+          qrCodeData={currentQrCodeData} 
+          handleEvent={this.closeQrCode.bind(this)} />
+        <LoginContainer 
+          isVisible={isLoginFrameShow} 
+          handletRetrieveUserData={this.retrieveUserData.bind(this)}
+          handleEvent={this.showLogin.bind(this)} />
+      </ThemeProvider>
     );
   }
 }
