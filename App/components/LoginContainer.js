@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Modal from 'react-native-modal';
-import { View } from 'react-native';
+import { View, Dimensions, Text } from 'react-native';
 import {
   Card, Icon, Input, Button,
 } from 'react-native-elements';
@@ -37,8 +37,10 @@ class LoginContainer extends Component {
         }
         let allUsers = JSON.parse(result);
         allUsers.push(user);
-        console.log('JSON.parse(result)===',allUsers);
         this._storeUserData(allUsers);
+        this.setState({'name':''})
+        this.setState({'group':''})
+        this.setState({'subtitle':''})
       }else{
         let user = {
           'name': name,
@@ -52,57 +54,82 @@ class LoginContainer extends Component {
       }
       handletRetrieveUserData();
       handleEvent();
+      this.setState({'name':''})
+      this.setState({'group':''})
+      this.setState({'subtitle':''})
     });
   }
 
-  componentDidMount() {
-    
-  }
+  checkInput = () => {
+    const { name, group, subtitle } = this.state;
+    if(name && group && subtitle){
+      return false;
+    }else{
+      return true;
+    }
+  };
 
   render() {
     const { isVisible, handleEvent } = this.props;
+    const width = Dimensions.get('window').width;
     return (
       <View>
         <Modal isVisible={isVisible}>
           <View style={{ flex: 1 }}>
             <Card
-              title="ADD PERSON"
+              title="新增人員"
+              titleStyle={{ color: '#03A9F4' }}
+              image={require('../res/images/logo.png')}
             >
+              <Text style={{marginBottom: 10}}>
+                皆為必填欄位,以產生Qrcode.
+              </Text>
               <Input
                 placeholder="姓名"
-                leftIcon={{ name: 'person' }}
+                leftIcon={{ name: 'person', color: '#03A9F4' }}
                 onChangeText={(text) => this.setState({'name':text})}
               />
               <Input
                 placeholder="單位"
-                leftIcon={{ name: 'email' }}
+                leftIcon={{ name: 'email', color: '#03A9F4'}}
                 onChangeText={(text) => this.setState({'group':text})}
               />
               <Input
                 placeholder="電話"
-                leftIcon={{ name: 'phone' }}
+                leftIcon={{ name: 'phone', color: '#03A9F4' }}
                 onChangeText={(text) => this.setState({'subtitle':text})}
               />
 
-              <Button
-                onPress={()=>this._handleAddUser()}
-                icon={<Icon name="add" color="#ffffff" />}
-                backgroundColor="#03A9F4"
-                buttonStyle={{
-                  borderRadius: 3, marginTop: 20,
-                }}
-                title="新增"
-              />
-
-              <Button
-                onPress={handleEvent}
-                icon={<Icon name="close" color="#ffffff" />}
-                backgroundColor="#03A9F4"
-                buttonStyle={{
-                  borderRadius: 3, marginTop: 20,
-                }}
-                title="關閉"
-              />
+              <View style={{
+                flexDirection: 'row', 
+                justifyContent: 'space-between',
+                marginTop: 20
+              }}>
+                <View style={{width : width*.3 }}>
+                  <Button
+                    onPress={()=>this._handleAddUser()}
+                    icon={<Icon name="add" color={this.checkInput()?"#999":"#03A9F4"}/>}
+                    buttonStyle={{
+                      borderRadius: 3,
+                    }}
+                    raised
+                    type="outline"
+                    title="新增"
+                    disabled={this.checkInput()}
+                  />
+                  </View>
+                <View style={{width : width*.3 }}>
+                  <Button
+                    onPress={handleEvent}
+                    icon={<Icon name="close" color="#03A9F4" />}
+                    type="outline"
+                    buttonStyle={{
+                      borderRadius: 3,
+                    }}
+                    title="關閉"
+                  />
+                </View>
+              </View>
 
             </Card>
           </View>

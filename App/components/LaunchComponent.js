@@ -1,7 +1,6 @@
 // LaunchComponent
 import React, { Component } from 'react';
-import { View } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { View, Image, Text } from 'react-native';
 
 
 class LaunchComponent extends Component {
@@ -21,11 +20,11 @@ class LaunchComponent extends Component {
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'center',
-        alignItems: 'stretch',
-        backgroundColor: '#ffd862',
+        alignItems: 'center',
       }}
       >
-        <LottieView source={require('./lottie/preloader.json')} autoPlay loop />
+        <Image source={require('../res/images/logo.png')} />
+        <Text style={{fontSize: 20}}>0.0.3</Text>
       </View>
     );
   }

@@ -90,7 +90,9 @@ class MainContainer extends Component {
           text: '刪除',
           onPress: () => { this._deleteUser(l) }
         }
-      ]} key={index}>
+      ]} 
+      key={index}
+      autoClose={true}>
         <ListItem
           onPress={() => this.showQrCode(l)}
           leftIcon={{ name: 'qrcode', size: 40, type: 'font-awesome' }}
@@ -121,7 +123,7 @@ class MainContainer extends Component {
               />
             </TouchableScale>
             )}
-          centerComponent={{ text: 'TEST1133', style: { color: '#fff', fontSize: 30 } }}
+          centerComponent={{ text: '參班人員', style: { color: '#fff', fontSize: 30 } }}
         />
         <ScrollView>
           {
